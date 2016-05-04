@@ -1,0 +1,3 @@
+/*
+	Analizador Léxico do ComboPascal
+*/

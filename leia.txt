@@ -1,0 +1,7 @@
+﻿COMANDOS NECESSÁRIOS PARA COMPILAR
+
+win_bison.exe -d -o teste.c bison_CP.y
+
+win_flex.exe lex_CP.l teste.c
+
+g++ -c lex.yy.c

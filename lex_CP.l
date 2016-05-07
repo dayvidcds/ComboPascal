@@ -15,13 +15,13 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <string.h>
-	#include "bison_CP.hpp"
+	#include "teste.hpp"
 
 	extern int yyparse();
 	
 %}
 
-%option yynowrap nodefault
+%option noyywrap nodefault
 
 %%
 
@@ -30,6 +30,8 @@
 "*" 				{ return MULT; }
 "/" 				{ return DIVREAL; }
 "DIV" 				{ return DIVINT; }
+"exp" 				{ return EXP; }
+"log" 				{ return LOG2; }
 "(" 				{ return LPAR; }
 ")" 				{ return RPAR; }
 "[" 				{ return LCOL; }
@@ -40,7 +42,7 @@
 "." 				{ return FSO; }
 ";" 				{ return SC; }
 "=" 				{ return AO; }
-//problema da aspas
+"\""				{ return QUOT; }
 "'" 				{ return QUOTSIMPLE; }
 "integer" 			{ return INT; }
 "real" 				{ return DOUBLE; }

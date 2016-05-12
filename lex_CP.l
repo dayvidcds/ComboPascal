@@ -71,6 +71,7 @@
 "end" 				{ return END; }
 "for" 				{ return FOR; }
 "nil" 				{ return NIL; }
+"program "			{ return PROGRAM; }
 
 [a-zA-Z_][a-zA-Z0-9_]* 				{ return IDENTIFIER; }
 [-]?[0-9]+							{ return LITERAL_INT; }

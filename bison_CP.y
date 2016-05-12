@@ -13,11 +13,18 @@
 */
 
 %{
+	#include <stdio.h>
+	#include <math.h>
+	#include "class_CP.h"
+
+	extern int yylex();
+
 	void yyerror(const char *ERROR){
 		printf("%s\n", ERROR);
 	}
 %}
 
+%token PROGRAM
 %token PLUS					//+
 %token MINUS				//-
 %token MULT					//*
@@ -36,7 +43,7 @@
 %token QUOTSIMPLE			//(')
 %token EXPUN				//unary expression
 %token INT 					//integer
-%token DOUBLE				//float
+%token REAL				//float
 %token BOOLEAN				//boolean
 %token STRING				//string("asdsf")
 %token CHAR					//caracter('a')
@@ -70,74 +77,25 @@
 %token AO					//=
 %token NL 					//new line(\n)
 %token LOG2 				//Function Logaritm
-%token LF
+%token DP 					//:
 
 %union {
 	int int_val;
 	double double_val;
 	char * str_val;
-	class Valor * valor;
+	//class Valor * valor;
+	class Idint *idint;
+	class Idreal *idreal;
+	class Programa *program;
 };
 
-%type <valor> Valor
-%type <valor> ExpUn
-%type <valor> Factor
-%type <valor> Exp
-%type <valor> ExpBinPLUS
-%type <valor> ExpBinMINUS
-%type <valor> FactorMul
-%type <valor> FactorDiv
-%type <double_val> LITERAL_DOUBLE
 %type <int_val> LITERAL_INT
+%type <double_val> LITERAL_DOUBLE
 %type <str_val> IDENTIFIER
+%type <idint> INT
+%type <idreal> REAL
+%type <program> PROGRAM
 
 %%
 
-programa : ListaExp{};
-
-ListaExp : comando{}
-		 |ListaExp LF comando{};
-		 
-comando : Exp{}
-		|Atrib{};
-		
-Atrib : Atribuicao{};		
-		
-Exp : ExpBinPLUS{}
-	  |ExpBinMINUS{}
-	  |Factor{};
-	  
-Factor : FactorMul{}
-	     |FactorDiv{}
-		 |ExpUn{};
-		 
-ExpUn : PLUSValor{}
-	    |MINUSValor{} 
-	    |Log2{}
-	    |EXPO{}
-	    |Valor{};
-
-Valor : LITERAL_INT{} 
-	    |IDENTIFIER{}	
-		|LITERAL_DOUBLE{}
-	    |Parenteses{};
-
-ExpBinPLUS : Exp PLUS Factor{}; 	  
-
-ExpBinMINUS : Exp MINUS Factor{};
-		 
-FactorMul : Factor MULT ExpUn{};
-
-FactorDiv : Factor DIVINT ExpUn{};
-		
-Log2 : LOG2 LPAR Exp RPAR{};		
-		
-EXPO : EXP LPAR Exp RPAR{};		
-		
-PLUSValor : PLUS Valor{};
-
-MINUSValor : MINUS Valor{};
-		
-Atribuicao : IDENTIFIER AO Exp{};
-
-Parenteses : LPAR Exp RPAR{};
+PROGRAMA : PROGRAM IDENTIFIER SC

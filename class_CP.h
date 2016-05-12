@@ -1,23 +1,80 @@
+#ifndef CLASSES_H
+#define CLASSES_H
+
 #include <iostream>
+#include <map>
+#include <string>
 
-class Node{};
+using namespace std;
 
-class programa : public Node{};
+class Visitor {
+	virtual void visit(Comandos *) = 0;
+	virtual void visit(ExpBinPlus *) = 0;
+	virtual void visit(ExpBinMinus *) = 0;
+	virtual void visit(FactorMul *) = 0;
+	virtual void visit(FactorDiv *) = 0;
+	virtual void visit(ExpUnPlus *) = 0;
+	virtual void visit(ExpUnMinus *) = 0;
+	virtual void visit(ExpUnLog *) = 0;
+	virtual void visit(ExpUnExp *) = 0;
+	virtual void visit(IntValue *) = 0;
+	virtual void visit(DoubleValue *) = 0;
+	virtual void visit(Identifier *) = 0;
+	virtual void visit(Parenteses *) = 0;
+	virtual void visit(Atribuicao *) = 0;
+	virtual void visit(Programa *) = 0;
+};
 
-class ListaExp : public programa{};
+class Node{
+	void accept(Visitor *v){
+		v->visit(this);
+	}
+};
 
-class comando : public ListaExp{};
+class Programa : public Node{
+	void accept(Visitor *v){
+		v->visit(this);
+	}
+};
 
-class Exp : public comando{};
+class ListaExp : public Programa{
+	void accept(Visitor *v){
+		v->visit(this);
+	}
+};
 
-class Atrib : public comando{};
+class comando : public ListaExp{
+	void accept(Visitor *v){
+		v->visit(this);
+	}
+};
 
-class Factor : public Exp{};
+class Exp : public comando{
+	void accept(Visitor *v){
+		v->visit(this);
+	}
+};
 
-class ExpUn : public Factor{};
+class Atrib : public comando{
+	void accept(Visitor *v){
+		v->visit(this);
+	}
+};
+
+class Factor : public Exp{
+	void accept(Visitor *v){
+		v->visit(this);
+	}
+};
+
+class ExpUn : public Factor{
+	void accept(Visitor *v){
+		v->visit(this);
+	}
+};
 
 class Valor : public ExpUn{
-	public:
+	/*public:
 		enum Tipo{
 			NONE,
 			INT,
@@ -25,16 +82,45 @@ class Valor : public ExpUn{
 		};
 	private:	
 		Tipo tipo;
+	*/
+
+	void accept(Visitor *v){
+		v->visit(this);
+	}
+};
+
+class Context {
+	private:
+		static Context *instancia;
+		static Programa *programa;
+		Context(){};
+	public:
+		typedef map<string, Valor*> TipoTabela;
+		static Context &getContext() {
+			if (instancia==NULL){
+				instancia = new Context();
+			}
+			return *instancia;
+		}
+		TipoTabela &getTabela(){
+			return this->tabela;
+		}
+		void setPrograma(Programa *prog){
+			programa = prog;
+		}
 };
 
 class INT_VALUE : public Valor{
 	private:
 		int value;
 	public:
-		INT_VALUE(int value):value(value){}
+		INT_VALUE(int value) : value(value){}
 		
 		int getValue()const{
 			return this->value;
+		}
+		void accept(Visitor *v){
+			v->visit(this);
 		}
 };
 
@@ -47,16 +133,22 @@ class DOUBLE_VAL : public Valor{
 		double getValue()const{
 			return this->value;
 		}
+		void accept(Visitor *v){
+			v->visit(this);
+		}
 };
 
 class Identifier : public Valor{
 	private:
 		char *value;
 	public:
-		Identifier(char *value):value(value){};
+		Identifier(char *value) : value(value){};
 		
 		char *getValue()const{
 			return this->value;
+		}
+		void accept(Visitor *v){
+			v->visit(this);
 		}
 };
 
@@ -74,6 +166,9 @@ class Atribuicao : public Atrib{
 		Exp *getExp(){
 			return this->exp;
 		}
+		void accept(Visitor *v){
+			v->visit(this);
+		}
 };
 
 class ExpBinPLUS : public Exp{
@@ -89,6 +184,9 @@ class ExpBinPLUS : public Exp{
 		
 		Factor *getFactor(){
 			return this->fac;
+		}
+		void accept(Visitor *v){
+			v->visit(this);
 		}
 };
 
@@ -106,6 +204,9 @@ class ExpBinMINUS : public Exp{
 		Factor *getFactor(){
 			return this->fac;
 		}
+		void accept(Visitor *v){
+			v->visit(this);
+		}
 };
 
 class FactorMul : public Factor{
@@ -121,6 +222,9 @@ class FactorMul : public Factor{
 		
 		ExpUn *getExpUn(){
 			return this->unexp;
+		}
+		void accept(Visitor *v){
+			v->visit(this);
 		}
 };
 
@@ -138,6 +242,9 @@ class FactorDiv : public Factor{
 		ExpUn *getExpUn(){
 			return this->unexp;
 		}
+		void accept(Visitor *v){
+			v->visit(this);
+		}
 };
 
 class PlusValor : public ExpUn{
@@ -148,6 +255,9 @@ class PlusValor : public ExpUn{
 		
 		Valor *getValor(){
 			return this->val;
+		}
+		void accept(Visitor *v){
+			v->visit(this);
 		}
 };
 
@@ -160,6 +270,9 @@ class MinusValor : public ExpUn{
 		Valor *getValor(){
 			return this->val;
 		}
+		void accept(Visitor *v){
+			v->visit(this);
+		}
 };
 
 class Log2 : public ExpUn{
@@ -170,6 +283,9 @@ class Log2 : public ExpUn{
 		
 		Exp *getExp(){
 			return this->exp;
+		}
+		void accept(Visitor *v){
+			v->visit(this);
 		}	
 };
 
@@ -182,15 +298,23 @@ class EXPO : public ExpUn{
 		Exp *getExp(){
 			return this->exp;
 		}
+		void accept(Visitor *v){
+			v->visit(this);
+		}
 };
 
-class parenteses : public Valor{
+class Parenteses : public Valor{
  	private:
 		Exp *exp;
 	public:
-		parenteses(Exp *xp) : exp(xp){};
+		Parenteses(Exp *xp) : exp(xp){};
 		
 		Exp *getExp(){
 			return this->exp;
 		}
+		void accept(Visitor *v){
+			v->visit(this);
+		}
 };
+
+#endif

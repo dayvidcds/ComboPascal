@@ -27,7 +27,7 @@
 
 "+" 				{ return PLUS; }
 "-" 				{ return MINUS; }
-"*" 				{ return MULT; }
+"*" 				{ printf("multiplicacao"); return MULT; }
 "/" 				{ return DIVREAL; }
 "DIV" 				{ return DIVINT; }
 "exp" 				{ return EXP; }
@@ -40,12 +40,12 @@
 "}" 				{ return RKEY; }
 ","					{ return SEP; }
 "." 				{ return FSO; }
-";" 				{ return SC; }
+";" 				{ printf("aiai");return SC; }
 "=" 				{ return AO; }
 "\""				{ return QUOT; }
 "'" 				{ return QUOTSIMPLE; }
 "integer" 			{ return INT; }
-"real" 				{ return DOUBLE; }
+"real" 				{ return REAL; }
 "boolean" 			{ return BOOLEAN; }
 "string" 			{ return STRING; }
 "char" 				{ return CHAR; }
@@ -67,13 +67,13 @@
 "do" 				{ return DO; }
 "to" 				{ return TO; }
 "var" 				{ return VAR; }
-"begin" 			{ return BEGIN; }
+"begin" 			{ return BEG; }
 "end" 				{ return END; }
 "for" 				{ return FOR; }
 "nil" 				{ return NIL; }
-"program "			{ return PROGRAM; }
+"program"			{ printf("\nprogram\n"); return PROGRAM; }
 
-[a-zA-Z_][a-zA-Z0-9_]* 				{ return IDENTIFIER; }
+[a-zA-Z_][a-zA-Z0-9_]* 				{ printf("\nIDENTIFIER\n"); return IDENTIFIER; }
 [-]?[0-9]+							{ return LITERAL_INT; }
 [-]?[0-9]+[\.][0-9]+				{ return LITERAL_DOUBLE; }
 "\n"								{ return NL; }

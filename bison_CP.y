@@ -15,7 +15,7 @@
 %{
 	#include <stdio.h>
 	#include <math.h>
-	#include "class_CP.h"
+	#include "class_CP.hpp"
 
 	extern int yylex();
 
@@ -67,7 +67,7 @@
 %token DO 					//do
 %token TO 					//to
 %token VAR 					//var
-%token BEGIN 				//begin
+%token BEG 				//begin
 %token END 					//end
 %token FOR 					//for
 %token NIL 					//null
@@ -78,24 +78,25 @@
 %token NL 					//new line(\n)
 %token LOG2 				//Function Logaritm
 %token DP 					//:
+%token PGR
+%token Escopo
 
 %union {
-	int int_val;
-	double double_val;
-	char * str_val;
-	//class Valor * valor;
-	class Idint *idint;
-	class Idreal *idreal;
-	class Programa *program;
+	class Int_Value *int_val;
+	class Double_Value *double_val;
+	class Identifier *id;
+	class PGR *pgr;
 };
-
-%type <int_val> LITERAL_INT
-%type <double_val> LITERAL_DOUBLE
-%type <str_val> IDENTIFIER
-%type <idint> INT
-%type <idreal> REAL
-%type <program> PROGRAM
+ 
+%type <pgr> INI
+%type <id> IDENTIFIER
 
 %%
+		 
+programa : ListaExp{};
 
-PROGRAMA : PROGRAM IDENTIFIER SC
+ListaExp : Comandos{};
+
+Comandos : INI Escopo{};
+
+INI : PROGRAM IDENTIFIER SC{};

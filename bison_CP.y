@@ -20,7 +20,7 @@
 	extern int yylex();
 
 	void yyerror(const char *ERROR){
-		printf("%s\n", ERROR);
+		//printf("\nlex error!!\n");
 	}
 %}
 
@@ -31,7 +31,6 @@
 %token DIVINT				//Integer Division
 %token DIVREAL				//Real Division
 %token IDENTIFIER			//identifier
-%token ATRIB 				//assignment values
 %token LPAR 				//(
 %token RPAR					//)
 %token LCOL					//[
@@ -42,13 +41,13 @@
 %token QUOT					//Quotation Mark(")
 %token QUOTSIMPLE			//(')
 %token EXPUN				//unary expression
-%token INT 					//integer
-%token REAL				//float
-%token BOOLEAN				//boolean
+%token INTEGER 					//integer
+%token REAL					//float
 %token STRING				//string("asdsf")
 %token CHAR					//caracter('a')
 %token LITERAL_INT			//0-9
 %token LITERAL_DOUBLE		//0.000...
+%token BOOLEAN                    //0-1
 %token CONST 				//const
 %token TRUEE				//condition(1)
 %token FALSEE				//condition(0)
@@ -68,35 +67,114 @@
 %token TO 					//to
 %token VAR 					//var
 %token BEG 				//begin
-%token END 					//end
+%token ENDFIM 					//end.
 %token FOR 					//for
 %token NIL 					//null
 %token SEP					//,
-%token FSO					//field selection operator(.)
+%token DOT					//ponto(.)
 %token SC 					//semi colon(;)
-%token AO					//=
+%token EQ					//=
 %token NL 					//new line(\n)
 %token LOG2 				//Function Logaritm
 %token DP 					//:
 %token PGR
 %token Escopo
+%token DIV
+%token INT_VALUE
+%token DOUBLE_VALUE
 
-%union {
-	class Int_Value *int_val;
-	class Double_Value *double_val;
-	class Identifier *id;
+%union{
+	int int_val;
+	double double_val;
+	char *str_val;
 	class PGR *pgr;
+	class Atrib *atrib;
+	class Value *Valor;
 };
  
-%type <pgr> INI
-%type <id> IDENTIFIER
+%type <str_val> IDENTIFIER;
+%type <int_val> INT_VALUE;
+%type <double_val> DOUBLE_VALUE;
+%type <pgr> PROGRAM;
 
 %%
+
+programa : PROGRAMA CODIGO{}
+;
+
+CODIGO : VAR DEC CODIGO{}
+	   | BEG ListaExp CODIGO{}
+	   | ENDFIM{}
+;
+
+DEC : DECLR DEC{}
+    | ATRIB DEC{}	   
+	| CODIGO{}
+;
+
+ListaExp : Exp{}
+		 | ATRIB{}
+;	
+		
+Exp : ExpBinPLUS{}
+	| ExpBinMINUS{}
+	| Factor{}
+;
+	  
+Factor : FactorMul{}
+	   | FactorDiv{}
+	   | ExpUn{}
+;
 		 
-programa : ListaExp{};
+ExpUn : PLUSValor{}
+	  | MINUSValor{} 
+	  | Valor{}
+;
 
-ListaExp : Comandos{};
+Valor : INT_VALUE{} 
+	  | IDENTIFIER{}	
+      | DOUBLE_VALUE{}
+	  | Parenteses{}
+;
 
-Comandos : INI Escopo{};
+TIPO : INTEGER SC{}
+	 | REAL SC{}
+;
 
-INI : PROGRAM IDENTIFIER SC{};
+PROGRAMA : PROGRAM IDENTIFIER SC{}
+;
+		
+ATRIB : Atribuicao{}
+;		
+
+DECLR : IDENTIFIER DP TIPO{}
+;
+		
+ExpBinPLUS : Exp PLUS Factor{}
+; 	  
+
+ExpBinMINUS : Exp MINUS Factor{}
+;
+
+FactorMul : Factor MULT ExpUn{}
+;
+
+FactorDiv : Factor DIVINT ExpUn{}
+;	
+		
+PLUSValor : PLUS Valor{}
+;
+
+MINUSValor : MINUS Valor{}
+;
+		
+Atribuicao : IDENTIFIER EQ ListaExp{}
+;
+
+Parenteses : LPAR ListaExp RPAR{}
+;
+
+%%
+
+
+

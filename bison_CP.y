@@ -38,7 +38,7 @@
 %token LKEY					//{
 %token RKEY					//}
 %token EXP 					//expression
-%token QUOT					//Quotation Mark(")
+%token QUOTDOUBLE					//Quotation Mark(")
 %token QUOTSIMPLE			//(')
 %token EXPUN				//unary expression
 %token INTEGER 					//integer
@@ -46,8 +46,8 @@
 %token STRING				//string("asdsf")
 %token CHAR					//caracter('a')
 %token LITERAL_INT			//0-9
-%token LITERAL_DOUBLE		//0.000...
-%token BOOLEAN                    //0-1
+%token LITERAL_REAL		    //0.000...
+%token BOOLEAN              //0-1
 %token CONST 				//const
 %token TRUEE				//condition(1)
 %token FALSEE				//condition(0)
@@ -66,8 +66,8 @@
 %token DO 					//do
 %token TO 					//to
 %token VAR 					//var
-%token BEG 				//begin
-%token ENDFIM 					//end.
+%token BEG 					//begin
+%token ENDFIM 				//end.
 %token FOR 					//for
 %token NIL 					//null
 %token SEP					//,
@@ -82,6 +82,8 @@
 %token DIV
 %token INT_VALUE
 %token DOUBLE_VALUE
+%token EQATRIB
+%token WRITE
 
 %union{
 	int int_val;
@@ -99,41 +101,42 @@
 
 %%
 
-programa : PROGRAMA CODIGO{}
+programa : PROGRAMA CODIGO
 ;
 
-CODIGO : VAR DEC CODIGO{}
-	   | BEG ListaExp CODIGO{}
-	   | ENDFIM{}
+CODIGO : VAR DEC CODIGO
+	   | BEG ListaExp CODIGO
+	   | ENDFIM
 ;
 
-DEC : DECLR DEC{}
-    | ATRIB DEC{}	   
-	| CODIGO{}
+DEC : DECLR DEC
+    | ATRIB DEC	   
+	| CODIGO
 ;
 
-ListaExp : Exp{}
-		 | ATRIB{}
+ListaExp : Exp
+		 | ATRIB ListaExp
+		 | SUPPORT ListaExp
 ;	
 		
-Exp : ExpBinPLUS{}
-	| ExpBinMINUS{}
-	| Factor{}
+Exp : ExpBinPLUS
+	| ExpBinMINUS
+	| Factor
 ;
 	  
-Factor : FactorMul{}
-	   | FactorDiv{}
-	   | ExpUn{}
+Factor : FactorMul
+	   | FactorDiv
+	   | ExpUn
 ;
 		 
-ExpUn : PLUSValor{}
-	  | MINUSValor{} 
-	  | Valor{}
+ExpUn : PLUSValor
+	  | MINUSValor 
+	  | Valor
 ;
 
-Valor : INT_VALUE{} 
-	  | IDENTIFIER{}	
-      | DOUBLE_VALUE{}
+Valor : LITERAL_INT{}	
+      | LITERAL_REAL{}
+      | IDENTIFIER{}
 	  | Parenteses{}
 ;
 
@@ -141,14 +144,22 @@ TIPO : INTEGER SC{}
 	 | REAL SC{}
 ;
 
+DECLR : IDENTIFIER DP TIPO{}
+	  | IDENTIFIER SEP DECLR{}
+;
+
+SUPPORT : W
+;
+//IDENTIFIER
+W : WRITE LPAR QUOTDOUBLE IDENTIFIER QUOTDOUBLE RPAR SC{}
+  | WRITE LPAR QUOTDOUBLE QUOTDOUBLE RPAR SC{}
+;
+
 PROGRAMA : PROGRAM IDENTIFIER SC{}
 ;
 		
 ATRIB : Atribuicao{}
 ;		
-
-DECLR : IDENTIFIER DP TIPO{}
-;
 		
 ExpBinPLUS : Exp PLUS Factor{}
 ; 	  
@@ -168,13 +179,10 @@ PLUSValor : PLUS Valor{}
 MINUSValor : MINUS Valor{}
 ;
 		
-Atribuicao : IDENTIFIER EQ ListaExp{}
+Atribuicao : IDENTIFIER EQATRIB ListaExp SC{}
 ;
 
 Parenteses : LPAR ListaExp RPAR{}
 ;
 
 %%
-
-
-

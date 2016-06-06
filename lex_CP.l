@@ -15,35 +15,40 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <string.h>
-	#include "bison_CP.hpp"
+	#include "teste.hpp"
 
 	extern int yyparse();
 	
 %}
 
-%option yynowrap nodefault
+%option noyywrap nodefault
 
 %%
 
-"+" 				{ return PLUS; }
-"-" 				{ return MINUS; }
-"*" 				{ return MULT; }
-"/" 				{ return DIVREAL; }
+"+" 				{ printf("+"); return PLUS; }
+"-" 				{ printf("-"); return MINUS; }
+"*" 				{ printf("*"); return MULT; }
+"/" 				{ printf("/"); return DIVREAL; }
 "DIV" 				{ return DIVINT; }
-"(" 				{ return LPAR; }
-")" 				{ return RPAR; }
+"exp" 				{ return EXP; }
+"log" 				{ return LOG2; }
+"(" 				{ printf("("); return LPAR; }
+")" 				{ printf(")"); return RPAR; }
 "[" 				{ return LCOL; }
 "]" 				{ return RCOL; }
 "{" 				{ return LKEY; }
 "}" 				{ return RKEY; }
-","					{ return SEP; }
-"." 				{ return FSO; }
-";" 				{ return SC; }
-"=" 				{ return AO; }
-//problema da aspas
+","					{ printf(", "); return SEP; }
+"." 				{ return DOT; }
+":"					{ printf(" : "); return DP; }
+";" 				{ printf(";\n"); return SC; }
+"=" 				{ return EQ; }
+":=" 				{ printf(" := "); return EQATRIB; }
+".."				{ return DIV; }
 "'" 				{ return QUOTSIMPLE; }
-"integer" 			{ return INT; }
-"real" 				{ return DOUBLE; }
+"\""	 			{ printf("\""); return QUOTDOUBLE; }
+"integer" 			{ printf("integer"); return INTEGER; }
+"real" 				{ printf("real"); return REAL; }
 "boolean" 			{ return BOOLEAN; }
 "string" 			{ return STRING; }
 "char" 				{ return CHAR; }
@@ -64,18 +69,20 @@
 "of" 				{ return OF; }
 "do" 				{ return DO; }
 "to" 				{ return TO; }
-"var" 				{ return VAR; }
-"begin" 			{ return BEGIN; }
-"end" 				{ return END; }
+"var" 				{ printf("var\n"); return VAR; }
+"begin" 			{ printf("begin\n"); return BEG; }
+"end." 				{ printf("end.\n"); return ENDFIM; }
 "for" 				{ return FOR; }
 "nil" 				{ return NIL; }
+"program"			{ printf("\nprogram "); return PROGRAM; }
+"write" 			{ printf("write"); return WRITE; }
 
-[a-zA-Z_][a-zA-Z0-9_]* 				{ return IDENTIFIER; }
-[-]?[0-9]+							{ return LITERAL_INT; }
-[-]?[0-9]+[\.][0-9]+				{ return LITERAL_DOUBLE; }
-"\n"								{ return NL; }
-[\n\r\t ]							{}
-.									{ printf("Caractere invalido: %s",yytext); exit(1); }
+[A-Za-z_\$][A-Za-z_\$0-9]* { yylval.str_val = strdup(yytext); printf("%s", yylval.str_val); return IDENTIFIER; }
+[0-9]+ 					   { yylval.int_val = atoi(yytext); printf("%i", yylval.int_val); return LITERAL_INT; }
+[0-9]+\.[0-9]+             { yylval.double_val = atof(yytext); printf("%f", yylval.double_val); return LITERAL_REAL; }
+"\n"					   {}
+[\n\r\t ]				   {}
+.						   { printf("\nCaractere invalido: %s\n", yytext); return 1; }
 
 %%
 
@@ -85,12 +92,13 @@ int main(int argc, char **argv){
 	
 	if(argc != 2){
 		printf("Passe como parametro o nome do arquivo\n\n");
-			return 1;
+		return 1;
 	}
 
 	if(yyparse()){
-		printf("Error!!\n");
-		return 1;
+		//printf("\nParser Error!!\n %i", yyparse());
+		return 2;
 	}
+
 	return 0;
 }	

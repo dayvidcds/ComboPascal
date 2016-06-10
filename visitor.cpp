@@ -38,10 +38,13 @@ void Interpreter::visit(ExpBinPlus *expBinPlus){
 	Value *secondVal = stack_.back();
 	stack_.pop_back();
 
+	printf("entrou");
+		
 	if(firstVal->getType() == Value::INT && secondVal->getType() == Value::INT){
 		IntValue *val1 = static_cast <IntValue *> (firstVal);
 		IntValue *val2 = static_cast <IntValue *> (secondVal);
 		stack_.push_back(new IntValue(val1->getValue() + val2->getValue()));
+		printf("%d", val1+val2);
 		
 	}else if(firstVal->getType() == Value::INT && secondVal->getType() == Value::DOUBLE){
 		IntValue *val1 = static_cast <IntValue *> (firstVal);
@@ -189,39 +192,10 @@ void Interpreter::visit(ExpUnMinus *expUnMinus){
 	delete firstValue;
 }
 
-/*
-void Interpreter::visit(ExpUnLog *expUnLog){
-	expUnLog->ExpUnLog::getExp()->accept(this);
-	Value *firstValue = stack_.back();
-	stack_.pop_back();
-
-	if(firstValue->getType() == Value::INT){
-		IntValue *intVal = static_cast <IntValue*> (firstValue);
-		stack_.push_back(new IntValue (log (intVal->getValue())));
-	} else if(firstValue->getType() == Value::REAL){
-		RealValue *intVal = static_cast <RealValue*> (firstValue);
-		stack_.push_back(new RealValue (log (intVal->getValue())));
-	}
-}
-
-void Interpreter::visit(ExpUnExp *expUnExp){
-	expUnExp->ExpUnExp::getExp()->accept(this);
-	Value *firstValue = stack_.back();
-	stack_.pop_back();
-
-	if(firstValue->getType() == Value::INT){
-		IntValue *intVal = static_cast <IntValue*> (firstValue);
-		stack_.push_back(new IntValue (exp (intVal->getValue())));
-	} else if(firstValue->getType() == Value::REAL){
-		RealValue *intVal = static_cast <RealValue*> (firstValue);
-		stack_.push_back(new RealValue (exp (intVal->getValue())));
-	}
-}
-
 void Interpreter::visit(LparExpRpar *lparExpRpar){
 	lparExpRpar->getExp()->accept(this);
 }
-*/
+
 
 void ExpBinPlus::accept(Visitor *visitor){ 
 	visitor->visit(this); 

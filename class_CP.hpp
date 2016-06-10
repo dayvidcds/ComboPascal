@@ -16,11 +16,51 @@ class Programa : public Node{
 
 };
 
-class Codigo : public Programa{
+class Command : public Programa{
+	
+};
+
+class List : public Command{
+	
+};
+
+class Pgr : public List{
+	
+};
+
+class Codigo : public List{
+	
+};
+
+class Var :public Codigo{
+	
+};
+
+class Beg : public Codigo{
+	
+};
+
+class Endfim : public Codigo{
 	
 };
 
 class Dec : public Codigo{
+	
+};
+
+class Decler: public Dec{
+	
+};
+
+class Tipo: public Decler{
+	
+};
+
+class Integer: public Tipo{
+	
+};
+
+class Real: public Tipo{
 	
 };
 
@@ -44,7 +84,7 @@ class Atrib : public ListaExp{
 	
 };
 
-class Value: ExpUn{
+class Value: public ExpUn{
 	public:
 		enum Type{
 			INTEGER,
@@ -140,7 +180,7 @@ class ExpUnMinus : public ExpUn {
 		void accept(Visitor *);
 };
 
-class IntValue: Value{
+class IntValue: public Value{
 	private:
 		int valor;
 		

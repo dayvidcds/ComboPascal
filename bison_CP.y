@@ -89,100 +89,152 @@
 	int int_val;
 	double double_val;
 	char *str_val;
-	class PGR *pgr;
-	class Atrib *atrib;
+	class Programa *pgr;
+	class Command *command;
+	class List *list;
+	class Codigo *code;
+	class Dec *dec;
+	class ListaExp *lexp;
+	class Exp *exp;
+	class Factor *fac;
+	class ExpUn *expUn;
+	class Atrib *atrib1;
 	class Value *Valor;
+	class ExpBinPlus *expBinPlus;
+	class ExpBinMinus *expBinMinus;
+	class FactorMul *facmul;
+	class FactorDiv *facdiv;
+	class ExpUnPlus *expUnPlus;
+	class ExpUnMinus *expUnMinus;
+	class Atribuicao *atrib;
+	class Pgr *PROG;
+	class Var *var1;
+	class Beg *beg1;
+	class Endfim *end1;
+	class Decler *decler;
+	class Tipo *tipo1;
+	class Integer *int1;
+	class Real *real1;
+	
 };
  
 %type <str_val> IDENTIFIER;
-%type <int_val> INT_VALUE;
-%type <double_val> DOUBLE_VALUE;
-%type <pgr> PROGRAM;
+%type <int_val> LITERAL_INT;
+%type <double_val> LITERAL_REAL;
+%type <pgr> programa;
+%type <command> Command;
+%type <lexp> ListaExp
+%type <exp> Exp
+%type <fac> Factor
+%type <expUn> ExpUn
+%type <atrib1> ATRIB
+%type <Valor> Valor
+%type <expBinPlus>ExpBinPLUS
+%type <expBinMinus>ExpBinMINUS
+%type <facmul>FactorMul
+%type <facdiv>FactorDiv
+%type <expUnPlus>PLUSValor
+%type <expUnMinus>MINUSValor
+%type <atrib>Atribuicao
+%type <var1> VAR
+%type <beg1> BEG
+%type <end1> ENDFIM
+%type <int1> INTEGER
+%type <real1> REAL
 
 %%
 
-programa : PROGRAMA CODIGO
+programa : Command{
+	$$ = $1;
+	Context :: getContext().setProgram($$);
+}
 ;
 
-CODIGO : VAR DEC CODIGO
-	   | BEG ListaExp CODIGO
-	   | ENDFIM
+Command : ListaExp{$$ = $1;}
 ;
 
-DEC : DECLR DEC
-    | ATRIB DEC	   
-	| CODIGO
+/*Lista : PROGRAM Lista{$$ = $1;} 
+		|CODIGO Lista{$$ = $1;}
 ;
 
-ListaExp : Exp
-		 | ATRIB ListaExp
-		 | SUPPORT ListaExp
+CODIGO : VAR ListaExp BEG ListaExp ENDFIM{$$ = $2;}
+;
+*/
+
+ListaExp : Exp{ $$ = $1; }
+		 | ATRIB ListaExp{ $$ = $1; }
 ;	
 		
-Exp : ExpBinPLUS
-	| ExpBinMINUS
-	| Factor
+Exp : ExpBinPLUS{$$ = $1;}
+	| ExpBinMINUS{$$ = $1;}
+	| Factor{$$ = $1;}
 ;
 	  
-Factor : FactorMul
-	   | FactorDiv
-	   | ExpUn
+Factor : FactorMul{$$ = $1;}
+	   | FactorDiv{$$ = $1;}
+	   | ExpUn{$$ = $1;}
 ;
 		 
-ExpUn : PLUSValor
-	  | MINUSValor 
-	  | Valor
+ExpUn : PLUSValor{$$ = $1;}
+	  | MINUSValor{$$ = $1;} 
+	  | Valor{$$ = $1;}
 ;
 
-Valor : LITERAL_INT{}	
-      | LITERAL_REAL{}
-      | IDENTIFIER{}
-	  | Parenteses{}
+Valor : LITERAL_INT{
+		$$ = new IntValue($1);
+		}	
+      | LITERAL_REAL{
+		$$ = new RealValue($1);
+		}
+      | IDENTIFIER{
+		$$ = new Identifier($1);}
 ;
 
-TIPO : INTEGER SC{}
-	 | REAL SC{}
-;
-
-DECLR : IDENTIFIER DP TIPO{}
-	  | IDENTIFIER SEP DECLR{}
-;
-
-SUPPORT : W
-;
-//IDENTIFIER
-W : WRITE LPAR QUOTDOUBLE IDENTIFIER QUOTDOUBLE RPAR SC{}
-  | WRITE LPAR QUOTDOUBLE QUOTDOUBLE RPAR SC{}
-;
-
+/*
 PROGRAMA : PROGRAM IDENTIFIER SC{}
 ;
+*/
 		
-ATRIB : Atribuicao{}
+ATRIB : Atribuicao{$$ = $1;}
 ;		
 		
-ExpBinPLUS : Exp PLUS Factor{}
+ExpBinPLUS : Exp PLUS Factor{
+	$$ = new  ExpBinPlus($1,$3);
+
+	}
 ; 	  
 
-ExpBinMINUS : Exp MINUS Factor{}
+ExpBinMINUS : Exp MINUS Factor{
+	$$ = new ExpBinMinus($1,$3);
+
+	}
 ;
 
-FactorMul : Factor MULT ExpUn{}
+FactorMul : Factor MULT ExpUn{
+	$$ = new FactorMul($1,$3);
+	}
 ;
 
-FactorDiv : Factor DIVINT ExpUn{}
+FactorDiv : Factor DIVINT ExpUn{
+	$$ = new FactorDiv($1,$3);
+	}
 ;	
 		
-PLUSValor : PLUS Valor{}
+PLUSValor : PLUS Valor{
+	$$ = new ExpUnPlus($2);
+	}
 ;
 
-MINUSValor : MINUS Valor{}
+MINUSValor : MINUS Valor{
+	$$ = new ExpUnMinus($2);
+	}
 ;
 		
-Atribuicao : IDENTIFIER EQATRIB ListaExp SC{}
+Atribuicao : IDENTIFIER EQATRIB Exp SC{
+	Identifier *id = new Identifier($1);
+	$$ = new Atribuicao(id,$3);
+	}
 ;
 
-Parenteses : LPAR ListaExp RPAR{}
-;
 
 %%

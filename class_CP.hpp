@@ -1,13 +1,15 @@
 #ifndef CLASSES_H
 #define CLASSES_H
 
-#include <map>
-#include <string.h>
 #include <iostream>
+#include <map>
+#include <vector>
+#include <string.h>
 
 using namespace std;
+using std::vector;
 
-class Node {
+class Node{
 	public:
 		virtual void accept(class Visitor *) = 0;
 };
@@ -16,59 +18,15 @@ class Programa : public Node{
 
 };
 
-class Command : public Programa{
+class ListaExp : public Programa{
 	
 };
 
-class List : public Command{
-	
-};
-
-class Pgr : public List{
-	
-};
-
-class Codigo : public List{
-	
-};
-
-class Var :public Codigo{
-	
-};
-
-class Beg : public Codigo{
-	
-};
-
-class Endfim : public Codigo{
-	
-};
-
-class Dec : public Codigo{
-	
-};
-
-class Decler: public Dec{
-	
-};
-
-class Tipo: public Decler{
-	
-};
-
-class Integer: public Tipo{
-	
-};
-
-class Real: public Tipo{
-	
-};
-
-class ListaExp : public Codigo{
+class Command : public ListaExp{
 	
 };
  
-class Exp : public ListaExp{
+class Exp : public Command{
 
 };
 
@@ -76,15 +34,11 @@ class Factor: public Exp {
 	
 };
 
-class ExpUn: public Factor {
+class ExpUn : public Factor {
 	
 };
 
-class Atrib : public ListaExp{
-	
-};
-
-class Value: public ExpUn{
+class Value : public ExpUn{
 	public:
 		enum Type{
 			INTEGER,
@@ -96,14 +50,13 @@ class Value: public ExpUn{
 		Type type;
 };
 
-
-class ExpBinPlus: public Exp {
+class ExpBinPLUS: public Exp {
 	private:
 		Exp *exp;
 		Factor *factor;
 
 	public:
-		ExpBinPlus(Exp *e, class Factor *f): exp(e), factor(f){} //construtor
+		ExpBinPLUS(Exp *e,Factor *f): exp(e), factor(f){} //construtor
 		Exp *getExp (){ 
 			return this->exp;
 		}
@@ -113,12 +66,12 @@ class ExpBinPlus: public Exp {
 		void accept(Visitor *);
 };
 
-class ExpBinMinus: public Exp {
+class ExpBinMINUS: public Exp {
 	private:
 		Exp *exp;
 		Factor *factor;
 	public:
-		ExpBinMinus(Exp *e,  class Factor *f): exp(e), factor(f){}
+		ExpBinMINUS(Exp *e,Factor *f): exp(e), factor(f){}
 		Exp *getExp (){ 
 			return this->exp;
 		}
@@ -131,14 +84,14 @@ class ExpBinMinus: public Exp {
 class FactorMul: public Factor {
 	private:
 		Factor *factor;
-		ExpUn *expUn;
+		ExpUn *EU;
 	public:
-		FactorMul(Factor *f, ExpUn *ue): factor(f), expUn(ue){}
+		FactorMul(Factor *f, ExpUn *ue): factor(f), EU(ue){}
 		Factor *getFactor(){ 
 			return this->factor;
 		}
 		ExpUn *getExpUn(){ 
-			return this->expUn; 
+			return this->EU; 
 		}
 		void accept(Visitor *);
 };
@@ -146,39 +99,41 @@ class FactorMul: public Factor {
 class FactorDiv: public Factor {
 	private:
 		Factor *factor;
-		ExpUn *expUn;
+		ExpUn *EU;
 	public:
-		FactorDiv(Factor *f, ExpUn *ue): factor(f), expUn(ue){}
+		FactorDiv(Factor *f, ExpUn *ue): factor(f), EU(ue){}
 		Factor *getFactor(){ 
 			return this->factor; 
 		}
 		ExpUn *getExpUn(){	
-			return this->expUn; 
+			return this->EU; 
 		}
 		void accept(Visitor *);
 };
 
-class ExpUnPlus : public ExpUn {
+class ExpUnPLUS : public ExpUn {
 	private:	
 		Value *value;
 	public:
-		ExpUnPlus(Value *v): value(v){}
+		ExpUnPLUS(Value *v): value(v){}
 		Value *getValue(){ 
 			return this->value; 
 		}
 		void accept(Visitor *);
 };
 
-class ExpUnMinus : public ExpUn {
+class ExpUnMINUS : public ExpUn {
 	private:
 		Value *value;
 	public:
-		ExpUnMinus(Value *v): value(v){}
+		ExpUnMINUS(Value *v): value(v){}
 		Value *getValue(){ 
 			return this->value;
 		}
 		void accept(Visitor *);
 };
+
+
 
 class IntValue: public Value{
 	private:
@@ -195,7 +150,6 @@ class IntValue: public Value{
 		int getValue(){
 			return this->valor;
 		}
-		
 		void accept(Visitor *);
 		
 };
@@ -213,9 +167,7 @@ class RealValue: public Value {
 		double getValue(){
 			return this->valor;
 		}
-		
-		void accept(Visitor *v);
-		
+		void accept(Visitor *);
 };
 
 class Identifier : public Value{
@@ -226,18 +178,16 @@ class Identifier : public Value{
 		Identifier( char *name) {
 			this->name = strdup(name);
 		};
-	
-	virtual Type getType();//Analizar
-	
+		
+		Type getType(){};
+		
 		char* getName(){
 			return this->name;
 		}
-		
 		void accept(Visitor *);
 }; 
 
-
-class Atribuicao : public Atrib{
+class Atribuicao : public Command{
 	private:
 		Exp *exp;
 		Identifier *iden;
@@ -248,22 +198,38 @@ class Atribuicao : public Atrib{
 		void accept(Visitor *);
 }; 
 
+class Parenteses : public ExpUn{
+	private:
+		Exp *exp;
+	public:
+		Parenteses(Exp *xp) : exp(xp){}
+		Exp *getExp(){
+			return this->exp;
+		}	
+		void accept(Visitor *);
+};		
 
 class Context {
 	private:
 		static Context *instance;
-		Programa *program;
-		
+		static Programa *program;
+		Context(){}
 	public:
 		typedef map<string, Value *> TypeTable;
-		
 		static Context &getContext() {
-			if (instance == NULL){ instance = new Context(); }
+			if (instance == NULL){
+				instance = new Context();
+				}
 			return *instance;
 		}
 		
-		TypeTable &getTable(){ return this->table; }
+		TypeTable &getTable(){ return this->table;}
+		
 		void setProgram(Programa *prog){ program = prog; }
+		
+		Programa *getProgram(){
+			return this->program;
+		};
 	private:
 		TypeTable table;	
 };

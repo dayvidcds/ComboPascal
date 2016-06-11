@@ -16,6 +16,7 @@
 	#include <stdlib.h>
 	#include <string.h>
 	#include "teste.hpp"
+	#include "visitor.hpp"
 
 	extern int yyparse();
 	
@@ -85,20 +86,4 @@
 .						   { printf("\nCaractere invalido: %s\n", yytext); return 1; }
 
 %%
-
-int main(int argc, char **argv){
-		
-	yyin = fopen (argv[1], "r"); //Arquivo de entrada
 	
-	if(argc != 2){
-		printf("Passe como parametro o nome do arquivo\n\n");
-		return 1;
-	}
-
-	if(yyparse()){
-		//printf("\nParser Error!!\n %i", yyparse());
-		return 2;
-	}
-
-	return 0;
-}	

@@ -11,28 +11,28 @@ void Interpreter::visit(RealValue *v){
 void Interpreter::visit(Identifier *v){
 		Context::TypeTable &typeTable = Context::getContext().getTable();
 
-		if(typeTable.find(v->getValue()) == typeTable.end()){
+		if(typeTable.find(v->getName()) == typeTable.end()){
 			stack_.push_back(v);
 		}else{
-			stack_.push_back(typeTable[v->getValue()]);
+			stack_.push_back(typeTable[v->getName()]);
 		}
 }
 
 void Interpreter::visit(Atribuicao *atrib){
 		atrib->Atribuicao::getExp()->accept(this);
-		atrib->Atribuicao::getIdValue()->accept(this);
+		atrib->Atribuicao::getIden()->accept(this);
 		
 		Context::TypeTable &typeTable = Context::getContext().getTable();
 		
 		Identifier *identifier = static_cast <Identifier *> (stack_.back());
 		stack_.pop_back();
-		typeTable[identifier->getValue()] = stack_.back();
+		typeTable[identifier->getName()] = stack_.back();
 		stack_.pop_back();
 }
 
-void Interpreter::visit(ExpBinPlus *expBinPlus){
-	expBinPlus->ExpBinPlus::getExp()->accept(this);
-	expBinPlus->ExpBinPlus::getFactor()->accept(this);
+void Interpreter::visit(ExpBinPLUS *expBinPlus){
+	expBinPlus->ExpBinPLUS::getExp()->accept(this);
+	expBinPlus->ExpBinPLUS::getFactor()->accept(this);
 	Value *firstVal = stack_.back();
 	stack_.pop_back();
 	Value *secondVal = stack_.back();
@@ -40,18 +40,17 @@ void Interpreter::visit(ExpBinPlus *expBinPlus){
 
 	printf("entrou");
 		
-	if(firstVal->getType() == Value::INT && secondVal->getType() == Value::INT){
+	if(firstVal->getType() == Value::INTEGER && secondVal->getType() == Value::INTEGER){
 		IntValue *val1 = static_cast <IntValue *> (firstVal);
 		IntValue *val2 = static_cast <IntValue *> (secondVal);
 		stack_.push_back(new IntValue(val1->getValue() + val2->getValue()));
-		printf("%d", val1+val2);
 		
-	}else if(firstVal->getType() == Value::INT && secondVal->getType() == Value::DOUBLE){
+	}else if(firstVal->getType() == Value::INTEGER && secondVal->getType() == Value::REAL){
 		IntValue *val1 = static_cast <IntValue *> (firstVal);
 		RealValue *val2 = static_cast <RealValue *> (secondVal);
 		stack_.push_back(new RealValue(val1->getValue() + val2->getValue()));
 		
-	}else if(firstVal->getType() == Value::REAL && secondVal->getType() == Value::INT){
+	}else if(firstVal->getType() == Value::REAL && secondVal->getType() == Value::INTEGER){
 		RealValue *val1 = static_cast <RealValue *> (firstVal);
 		IntValue *val2 = static_cast <IntValue *> (secondVal);
 		stack_.push_back(new RealValue(val1->getValue() + val2->getValue()));
@@ -66,25 +65,25 @@ void Interpreter::visit(ExpBinPlus *expBinPlus){
 	delete secondVal;
 }
 
-void Interpreter::visit(ExpBinMinus *expBinMinus){
-	expBinMinus->ExpBinMinus::getExp()->accept(this);
-	expBinMinus->ExpBinMinus::getFactor()->accept(this);
+void Interpreter::visit(ExpBinMINUS *expBinMinus){
+	expBinMinus->ExpBinMINUS::getExp()->accept(this);
+	expBinMinus->ExpBinMINUS::getFactor()->accept(this);
 	Value *secondVal = stack_.back();
 	stack_.pop_back();
 	Value *firstVal = stack_.back();
 	stack_.pop_back(); 
 
-	if(firstVal->getType() == Value::INT && secondVal->getType() == Value::INT){
+	if(firstVal->getType() == Value::INTEGER && secondVal->getType() == Value::INTEGER){
 		IntValue *val1 = static_cast <IntValue *> (firstVal);
 		IntValue *val2 = static_cast <IntValue *> (secondVal);
 		stack_.push_back(new IntValue(val1->getValue() - val2->getValue()));
 	
-	}else if(firstVal->getType() == Value::INT && secondVal->getType() == Value::REAL){
+	}else if(firstVal->getType() == Value::INTEGER && secondVal->getType() == Value::REAL){
 		IntValue *val1 = static_cast <IntValue *> (firstVal);
 		RealValue *val2 = static_cast <RealValue *> (secondVal);
 		stack_.push_back(new RealValue(val1->getValue() - val2->getValue()));
 	
-	}else if(firstVal->getType() == Value::REAL && secondVal->getType() == Value::INT){
+	}else if(firstVal->getType() == Value::REAL && secondVal->getType() == Value::INTEGER){
 		RealValue *val1 = static_cast <RealValue *> (firstVal);
 		IntValue *val2 = static_cast <IntValue *> (secondVal);
 		stack_.push_back(new RealValue(val1->getValue() - val2->getValue()));
@@ -100,24 +99,24 @@ void Interpreter::visit(ExpBinMinus *expBinMinus){
 }
 
 void Interpreter::visit(FactorMul *factorMul){
-	factorMul->FactorMul::getUnExp()->accept(this);
+	factorMul->FactorMul::getExpUn()->accept(this);
 	factorMul->FactorMul::getFactor()->accept(this);
 	Value *firstVal = stack_.back();
 	stack_.pop_back();
 	Value *secondVal = stack_.back();
 	stack_.pop_back();
 
-	if(firstVal->getType() == Value::INT && secondVal->getType() == Value::INT){
+	if(firstVal->getType() == Value::INTEGER && secondVal->getType() == Value::INTEGER){
 		IntValue *val1 = static_cast <IntValue *> (firstVal);
 		IntValue *val2 = static_cast <IntValue *> (secondVal);
 		stack_.push_back(new IntValue(val1->getValue() * val2->getValue()));
 	
-	}else if(firstVal->getType() == Value::INT && secondVal->getType() == Value::REAL){
+	}else if(firstVal->getType() == Value::INTEGER && secondVal->getType() == Value::REAL){
 		IntValue *val1 = static_cast <IntValue *> (firstVal);
 		RealValue *val2 = static_cast <RealValue *> (secondVal);
 		stack_.push_back(new RealValue(val1->getValue() * val2->getValue()));
 	
-	}else if(firstVal->getType() == Value::REAL && secondVal->getType() == Value::INT){
+	}else if(firstVal->getType() == Value::REAL && secondVal->getType() == Value::INTEGER){
 		RealValue *val1 = static_cast <RealValue *> (firstVal);
 		IntValue *val2 = static_cast <IntValue *> (secondVal);
 		stack_.push_back(new RealValue(val1->getValue() * val2->getValue()));
@@ -133,24 +132,24 @@ void Interpreter::visit(FactorMul *factorMul){
 }
 
 void Interpreter::visit(FactorDiv *factorDiv){
-	factorDiv->FactorDiv::getUnExp()->accept(this);
+	factorDiv->FactorDiv::getExpUn()->accept(this);
 	factorDiv->FactorDiv::getFactor()->accept(this);
 	Value *firstVal = stack_.back();
 	stack_.pop_back();
 	Value *secondVal = stack_.back();
 	stack_.pop_back();
 
-	if(firstVal->getType() == Value::INT && secondVal->getType() == Value::INT){
+	if(firstVal->getType() == Value::INTEGER && secondVal->getType() == Value::INTEGER){
 		IntValue *val1 = static_cast <IntValue *> (firstVal);
 		IntValue *val2 = static_cast <IntValue *> (secondVal);
 		stack_.push_back(new IntValue(val1->getValue() / val2->getValue()));
 	
-	}else if(firstVal->getType() == Value::INT && secondVal->getType() == Value::REAL){
+	}else if(firstVal->getType() == Value::INTEGER && secondVal->getType() == Value::REAL){
 		IntValue *val1 = static_cast <IntValue *> (firstVal);
 		RealValue *val2 = static_cast <RealValue *> (secondVal);
 		stack_.push_back(new RealValue(val1->getValue() / val2->getValue()));
 	
-	}else if(firstVal->getType() == Value::REAL && secondVal->getType() == Value::INT){
+	}else if(firstVal->getType() == Value::REAL && secondVal->getType() == Value::INTEGER){
 		RealValue *val1 = static_cast <RealValue *> (firstVal);
 		IntValue *val2 = static_cast <IntValue *> (secondVal);
 		stack_.push_back(new RealValue(val1->getValue() / val2->getValue()));
@@ -165,12 +164,12 @@ void Interpreter::visit(FactorDiv *factorDiv){
 	delete secondVal;
 }
 
-void Interpreter::visit(ExpUnPlus *expUnPlus){
-	expUnPlus->ExpUnPlus::getValue()->accept(this);
+void Interpreter::visit(ExpUnPLUS *expUnPlus){
+	expUnPlus->ExpUnPLUS::getValue()->accept(this);
 	Value *firstValue = stack_.back();
 	stack_.pop_back();
 
-	if(firstValue->getType() == Value::INT){
+	if(firstValue->getType() == Value::INTEGER){
 		IntValue *v = static_cast <IntValue *> (firstValue);
 	} else if(firstValue->getType() == Value::REAL){
 		RealValue *v = static_cast <RealValue *> (firstValue);
@@ -178,12 +177,12 @@ void Interpreter::visit(ExpUnPlus *expUnPlus){
 		
 	delete firstValue;
 }
-void Interpreter::visit(ExpUnMinus *expUnMinus){
-	expUnMinus->ExpUnMinus::getValue()->accept(this);
+void Interpreter::visit(ExpUnMINUS *expUnMinus){
+	expUnMinus->ExpUnMINUS::getValue()->accept(this);
 	Value*firstValue = stack_.back();
 	stack_.pop_back();
 
-	if(firstValue->getType() == Value::INT){
+	if(firstValue->getType() == Value::INTEGER){
 		IntValue *v = static_cast <IntValue *> (firstValue);
 	} else if(firstValue->getType() == Value::REAL){
 		RealValue *v = static_cast <RealValue *> (firstValue);
@@ -192,16 +191,15 @@ void Interpreter::visit(ExpUnMinus *expUnMinus){
 	delete firstValue;
 }
 
-void Interpreter::visit(LparExpRpar *lparExpRpar){
-	lparExpRpar->getExp()->accept(this);
+void Interpreter::visit(Parenteses *parenteses){
+	parenteses->getExp()->accept(this);
 }
 
-
-void ExpBinPlus::accept(Visitor *visitor){ 
+void ExpBinPLUS::accept(Visitor *visitor){ 
 	visitor->visit(this); 
 }
 
-void ExpBinMinus::accept(Visitor *visitor){ 
+void ExpBinMINUS::accept(Visitor *visitor){ 
 	visitor->visit(this); 
 }
 
@@ -213,11 +211,11 @@ void FactorDiv::accept(Visitor *visitor){
 	visitor->visit(this); 
 }
 
-void ExpUnPlus::accept(Visitor *visitor){ 
+void ExpUnPLUS::accept(Visitor *visitor){ 
 	visitor->visit(this); 
 }
 
-void ExpUnMinus::accept(Visitor *visitor){ 
+void ExpUnMINUS::accept(Visitor *visitor){ 
 	visitor->visit(this); 
 }
 
@@ -225,10 +223,10 @@ void ExpUnMinus::accept(Visitor *visitor){
 void ExpUnLog::accept(Visitor *visitor){ 
 	visitor->visit(this); 
 }
-*/
+
 void ExpUnExp::accept(Visitor *visitor){ 
 	visitor->visit(this); 
-}
+}*/
 
 void IntValue::accept(Visitor *visitor){ 
 	visitor->visit(this); 
@@ -241,11 +239,11 @@ void RealValue::accept(Visitor *visitor){
 void Identifier::accept(Visitor *visitor){ 
 	visitor->visit(this); 
 }
-/*
-void LparExpRpar::accept(Visitor *visitor){ 
+
+void Parenteses::accept(Visitor *visitor){ 
 	visitor->visit(this); 
 }
-*/
+
 void Atribuicao::accept(Visitor *visitor){ 
 	visitor->visit(this); 
 }

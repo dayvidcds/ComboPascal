@@ -13,9 +13,10 @@
 */
 
 %{
-	#include <stdio.h>
-	#include <math.h>
 	#include "class_CP.hpp"
+	#include <iostream>
+	#include <map>
+	#include <stdio.h>
 
 	extern int yylex();
 
@@ -89,81 +90,55 @@
 	int int_val;
 	double double_val;
 	char *str_val;
-	class Programa *pgr;
-	class Command *command;
-	class List *list;
-	class Codigo *code;
-	class Dec *dec;
-	class ListaExp *lexp;
-	class Exp *exp;
+	class Programa *prog;
+	class ListaExp *Lexp;
+	class Command *cmd;
+	class Exp *xp;
 	class Factor *fac;
-	class ExpUn *expUn;
-	class Atrib *atrib1;
-	class Value *Valor;
-	class ExpBinPlus *expBinPlus;
-	class ExpBinMinus *expBinMinus;
-	class FactorMul *facmul;
-	class FactorDiv *facdiv;
-	class ExpUnPlus *expUnPlus;
-	class ExpUnMinus *expUnMinus;
+	class ExpUn *expun;
+	class ExpBinPLUS *BinPlus;
+	class ExpBinMINUS *BinMinus;
+	class FactorMul *MulFac;
+	class FactorDiv *DivFac;
+	class ExpUnPLUS *UnPlus;
+	class ExpUnMINUS *UnMinus;
+	class Value *value;
+	class Parenteses *parenteses;
 	class Atribuicao *atrib;
-	class Pgr *PROG;
-	class Var *var1;
-	class Beg *beg1;
-	class Endfim *end1;
-	class Decler *decler;
-	class Tipo *tipo1;
-	class Integer *int1;
-	class Real *real1;
-	
 };
  
-%type <str_val> IDENTIFIER;
+%type <prog> programa;
+%type <Lexp> ListaExp;
+%type <cmd> Command;
+%type <xp> Exp;
+%type <fac> Factor;
+%type <expun> ExpUn;
+%type <BinPlus> ExpBinPLUS;
+%type <BinMinus> ExpBinMINUS;
+%type <MulFac>FactorMul;
+%type <DivFac>FactorDiv;
+%type <UnPlus>PLUSValor;
+%type <UnMinus>MINUSValor;
+%type <value>Valor;
+%type <parenteses> Parenteses;
+%type <atrib> ATRIB;
 %type <int_val> LITERAL_INT;
 %type <double_val> LITERAL_REAL;
-%type <pgr> programa;
-%type <command> Command;
-%type <lexp> ListaExp
-%type <exp> Exp
-%type <fac> Factor
-%type <expUn> ExpUn
-%type <atrib1> ATRIB
-%type <Valor> Valor
-%type <expBinPlus>ExpBinPLUS
-%type <expBinMinus>ExpBinMINUS
-%type <facmul>FactorMul
-%type <facdiv>FactorDiv
-%type <expUnPlus>PLUSValor
-%type <expUnMinus>MINUSValor
-%type <atrib>Atribuicao
-%type <var1> VAR
-%type <beg1> BEG
-%type <end1> ENDFIM
-%type <int1> INTEGER
-%type <real1> REAL
-
+%type <str_val> IDENTIFIER;
 %%
 
-programa : Command{
+programa : ListaExp{
 	$$ = $1;
-	Context :: getContext().setProgram($$);
+	Context::getContext().setProgram($$);
 }
 ;
 
-Command : ListaExp{$$ = $1;}
+ListaExp : Command{$$ = $1;}
 ;
 
-/*Lista : PROGRAM Lista{$$ = $1;} 
-		|CODIGO Lista{$$ = $1;}
-;
-
-CODIGO : VAR ListaExp BEG ListaExp ENDFIM{$$ = $2;}
-;
-*/
-
-ListaExp : Exp{ $$ = $1; }
-		 | ATRIB ListaExp{ $$ = $1; }
-;	
+Command : Exp{$$ = $1;}
+		| ATRIB{$$ = $1;}
+;		
 		
 Exp : ExpBinPLUS{$$ = $1;}
 	| ExpBinMINUS{$$ = $1;}
@@ -178,63 +153,60 @@ Factor : FactorMul{$$ = $1;}
 ExpUn : PLUSValor{$$ = $1;}
 	  | MINUSValor{$$ = $1;} 
 	  | Valor{$$ = $1;}
+	  |Parenteses{$$ = $1;}
 ;
 
 Valor : LITERAL_INT{
 		$$ = new IntValue($1);
-		}	
+	}	
       | LITERAL_REAL{
 		$$ = new RealValue($1);
-		}
+	}
       | IDENTIFIER{
-		$$ = new Identifier($1);}
+		$$ = new Identifier($1);
+}
 ;
-
-/*
-PROGRAMA : PROGRAM IDENTIFIER SC{}
-;
-*/
-		
-ATRIB : Atribuicao{$$ = $1;}
-;		
 		
 ExpBinPLUS : Exp PLUS Factor{
-	$$ = new  ExpBinPlus($1,$3);
-
-	}
+	$$ = new ExpBinPLUS($1,$3);
+}
 ; 	  
 
 ExpBinMINUS : Exp MINUS Factor{
-	$$ = new ExpBinMinus($1,$3);
-
-	}
+	$$ = new ExpBinMINUS($1,$3);
+}
 ;
 
 FactorMul : Factor MULT ExpUn{
 	$$ = new FactorMul($1,$3);
-	}
+}
 ;
 
 FactorDiv : Factor DIVINT ExpUn{
 	$$ = new FactorDiv($1,$3);
-	}
+}
 ;	
-		
+
 PLUSValor : PLUS Valor{
-	$$ = new ExpUnPlus($2);
-	}
+	$$ = new ExpUnPLUS($2);
+}
 ;
 
 MINUSValor : MINUS Valor{
-	$$ = new ExpUnMinus($2);
-	}
+	$$ = new ExpUnMINUS($2);
+}
 ;
-		
-Atribuicao : IDENTIFIER EQATRIB Exp SC{
+
+Parenteses : LPAR Exp RPAR{
+	$$ = new Parenteses($2);
+}
+;
+
+ATRIB : IDENTIFIER EQ Exp SC{
 	Identifier *id = new Identifier($1);
 	$$ = new Atribuicao(id,$3);
-	}
+}
 ;
-
-
+		
 %%
+	

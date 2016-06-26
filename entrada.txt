@@ -1,0 +1,15 @@
+program teste;
+  begin
+    a := 2;
+    a + 3;
+    
+    if 5 = 5 then
+    begin
+      3+3;
+    end;
+    
+    if 5 = 5 then
+    begin
+      3+4;
+    end;
+end.

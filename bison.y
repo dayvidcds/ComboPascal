@@ -60,27 +60,39 @@
 %token T_LITERAL_INTEGER;
 %token T_LITERAL_REAL;
 %token T_DOC_PARAM;
-%token BEG;
-%token ENDDOT;
-%token THEN;
-%token END;
-%token IF;
+%token T_BEG;
+%token T_ENDDOT;
+%token T_THEN;
+%token T_END;
+%token T_PROGRAM;
 %token T_COMP_EQUAL;
 %token T_COMP_DIFF;
-%token T_PROGRAM;
+%token T_COMP_LESS;
+%token T_COMP_LESS_EQ;
+%token T_COMP_GREATER;
+%token T_COMP_GREATER_EQ;
 
+%token T_IF;
+%token T_ELSE;//ADDICIONADO
+%token T_FOR;//ADDICIONADO
+%token T_WHILE;//ADDICIONADO
 
 %union {
 	int int_value;
-	double double_value;
+	double real_value;
 	char char_value;
-	char *identifier;
+	char *identifier_value;
+	int var_type;//ADDICIONADO
+	
 	class Program *program;
+	
 	class ExpList *explist;
-	class Command *command;
 	class Commands *commands;
+	
+	class Command *command;
 	class Value *value;
 	class Exp *exp;
+	
 	class ExpPlusMinusBin *bepm;
 	class ExpUn *unexp;
 	class Factor *factor;
@@ -95,6 +107,12 @@
 	class ExpDif *diffexp;
 	class ExpIg *eqexp;
 	class If *iff;
+	class ExpLessGreater *elg;
+	class LessThen *lt;
+	class LessEqualThen *let;
+	class GreaterThen *gt;
+	class GreaterEqualThen *get;
+	class SymbolTable *symbols;
 };
 
 %type<program> Program;
@@ -103,8 +121,8 @@
 %type<commands> Commands;
 %type<char_value> T_CHARACTER;
 %type<int_value> T_LITERAL_INTEGER;
-%type<double_value> T_LITERAL_REAL;
-%type<identifier> T_IDENTIFIER;
+%type<real_value> T_LITERAL_REAL;
+%type<identifier_value> T_IDENTIFIER;
 %type<value> Value;
 %type<exp> Exp;
 %type<bepm> ExpPlusMinusBin;
@@ -121,6 +139,11 @@
 %type<diffexp> ExpDif;
 %type<eqexp> ExpIg;
 %type<iff> If;
+%type<elg> ExpLessGreater;
+%type<lt> LessThen;
+%type<let> LessEqualThen;
+%type<gt> GreaterThen;
+%type<get> GreaterEqualThen;
 
 
 %%
@@ -131,7 +154,16 @@ Program : T_PROGRAM T_IDENTIFIER T_SC ExpList T_DOT{
 	}
 ;
 
-ExpList : BEG Commands END{ $$ = $2; }
+ExpList : T_BEG Commands T_END {
+		// Tentei fazer pro $2 ser passado no construtor...
+		// não funcionou, nao sei o motivo...
+		// então coloquei um método setCommands
+		
+		ExpList *expList = new ExpList();
+		expList->setCommands($2);
+		
+		$$ = expList;
+	}
 ;
 
 Commands : Commands Command T_SC{ $$ = new CommandsCommand($1,$2); }
@@ -143,9 +175,15 @@ Command : Atrib {$$ = $1;}
 		|If {$$ = $1; }
 ;
 
+If : T_IF Exp T_THEN ExpList {
+		$$ = new If($2,$4);
+    }
+;
+
 Exp : ExpPlusMinusBin { $$ = $1; }
 	|ExpIgDif {$$ = $1;}
 	|Factor {$$ = $1;}
+	|ExpLessGreater {$$ = $1;}
 ;
 
 ExpIgDif : ExpIg { $$ = $1; }
@@ -161,10 +199,48 @@ ExpBinPlus : Exp T_PLUS Factor{
 	}
 ;  
 
+
+ExpLessGreater : LessThen {$$ = $1;}
+			   | LessEqualThen {$$ = $1;}
+			   | GreaterThen {$$ = $1;}
+			   | GreaterEqualThen {$$ = $1;}
+;
+
 ExpBinMinus : Exp T_MINUS Factor{
 		$$ = new ExpBinMinus($1, $3);
+};
+
+LessThen : Exp T_COMP_LESS Factor{
+		$$ =  new LessThen($1,$3);
+}
+;
+
+LessEqualThen : Exp T_COMP_LESS_EQ Factor{
+		$$ = new LessEqualThen($1,$3);
+}
+;
+
+GreaterThen : Exp T_COMP_GREATER Factor{
+		$$ = new GreaterThen($1,$3);
+}
+;
+
+GreaterEqualThen : Exp T_COMP_GREATER_EQ Factor{
+		$$ = new GreaterEqualThen($1,$3);
+}
+;
+
+
+ExpIg : Exp T_COMP_EQUAL Factor {
+		$$ = new ExpIg($1, $3);
 	}
 ;
+
+ExpDif : Exp T_COMP_DIFF Factor {
+		$$ = new ExpDif($1, $3);
+	}
+;
+
 
 Factor : FactorMul { $$ = $1; }
 		|FactorDiv { $$ = $1; }
@@ -194,21 +270,6 @@ ExpUnPlus : T_PLUS Value {
 ExpUnMinus : T_MINUS Value {
 		$$ = new ExpUnMinus($2);
 	}
-;
-
-ExpIg : Exp T_COMP_EQUAL Factor {
-		$$ = new ExpIg($1, $3);
-	}
-;
-
-ExpDif : Exp T_COMP_DIFF Factor {
-		$$ = new ExpDif($1, $3);
-	}
-;
-
-If : IF Exp THEN BEG Commands END{
-		$$ = new If($2,$5);
-    }
 ;
 
 Value : T_LITERAL_INTEGER {		

@@ -1,15 +1,35 @@
 program teste;
-  begin
-    a := 2;
-    a + 3;
-    
-    if 5 = 5 then
-    begin
-      3+3;
-    end;
-    
-    if 5 = 5 then
-    begin
-      3+4;
-    end;
-end.
+	begin
+		a := 2;
+		b := 7;
+		
+		a + b;
+		
+		x := 10;
+		
+		if 2 = 2 then
+		begin
+			c := 3;
+			
+			if 2 <> 3 then
+			begin
+				d := 4;
+				y := c + d;
+				
+				if 4 >= 0 then
+				begin
+					z := 5;
+					teste := 999;
+					y + teste;
+				end;
+			end;
+		end;
+		
+		c + 1;
+		x + 7;
+		2 + 2;
+		x + 100;
+		2 + 3;
+		w := x + x;
+		w + 1;
+	end.

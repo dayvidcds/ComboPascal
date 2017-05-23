@@ -17,9 +17,10 @@
 "*"		{ return T_MULT; }
 "/"		{ return T_DIV; }
 "program" 		{ return T_PROGRAM; }
-"character"		{ return T_CHARACTER; }
-"integer"		{ return T_INTEGER; }
-"real"			{ return T_REAL; }
+
+"integer"		{ yylval.type = 0; return T_INTEGER; }
+"real"			{ yylval.type = 1; return T_REAL; }
+
 "String" 		{ return T_STRING; }
 "boolean" 		{ return T_BOOLEAN; }
 "begin"         { return BEG; }
@@ -32,6 +33,10 @@
 ":="	{ return T_EQUAL; }
 "="		{return T_COMP_EQUAL; }
 "<>"	{return T_COMP_DIFF; }
+">"     {return T_GREATER; }
+"<"     {return T_LESS;}
+">="    {return T_GREATEREQ;}
+"<="    {return T_LESSEQ;}
 ","		{ return T_SEP; }
 "."		{ return T_DOT; }
 ":"		{ return T_DP; }

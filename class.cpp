@@ -1,4 +1,19 @@
 #include "class.hpp"
+#include "visitor.hpp"
+#include <iostream>
+using namespace std;
+
+Commands *BlockCommands::getCommands(){
+	return this->cmds_;
+}
+
+void BlockCommands::setCommands(Commands *cmds) {
+	this->cmds_ = cmds;
+}
+
+CommandsCommand::CommandsCommand(Commands *cmms,Command *cmm): cmds(cmms),cmd(cmm){}
+
+BlockCommands:: BlockCommands(Commands *cmds): cmds_(cmds) {}
 
 Commands *CommandsCommand::getCommands(){
 	return this->cmds;
@@ -8,15 +23,57 @@ Command *CommandsCommand::getCommand(){
 	return this->cmd;
 };
 
+int Vardeclaration :: getType(){
+	return type_;
+}
+
+Identifier *Vardeclaration :: getIdValue{
+	return ident_;
+}
+
+VarDeclarations *VarVar:: getVarDecls();
+	return vds_;	
+}
+
+VarDeclaration *VarVar:: getVarDecl();		
+	return vd_;
+}
+
+FuncDefinitionList *FuncDefinitions :: getFuncDefinitionList(){
+	return flist; 
+}
+
+FuncDefinition *FuncDefinitions :: getFuncDefinition(){
+	return f;
+}
+
+Commands *BlockCommands::getCommands(){
+	return cmds_;
+}
+
+void BlockCommands::setCommands(Commands *cmds){
+	cmms_ = cmds;
+}
+
+
+
+
+
+
+
+
 Exp *If::getExp(){
 	return this->exp;
 }
 
-ExpList *If::getExpList(){
+BlockCommands *If::getExpList(){
 	return this->expList;
 }
 
-ExpBinPlus::ExpBinPlus(Exp *e, class Factor *f): exp(e), factor(f){} 
+ExpBinPlus::ExpBinPlus(Exp *e, class Factor *f): exp(e), factor(f){
+	
+} 
+
 Exp *ExpBinPlus::getExp(){
 	return this->exp;
 }
@@ -61,6 +118,40 @@ Factor *ExpDif::getFactor(){
 	return this->factor;
 }
 
+Exp *LessThen::getExp(){
+	return this->exp;
+}
+
+Factor *LessThen::getFactor(){
+	return this->factor;
+}
+
+
+Exp *LessEqualThen::getExp(){
+	return this->exp;
+}
+
+Factor *LessEqualThen::getFactor(){
+	return this->factor;
+}
+
+
+Exp *GreaterThen::getExp(){
+	return this->exp;
+}
+
+Factor *GreaterThen::getFactor(){
+	return this->factor;
+}
+
+
+Exp *GreaterEqualThen::getExp(){
+	return this->exp;
+}
+
+Factor *GreaterEqualThen::getFactor(){
+	return this->factor;
+}
 
 Factor *FactorDiv::getFactor(){ 
 	return this->factor; 
@@ -121,15 +212,35 @@ Identifier	*Atribuicao::getIdValue(){
 	return this->ident; 
 }
 
+SymbolTable::SymbolTable(SymbolTable *pai) : pai_(pai) {}
+
+Value* SymbolTable::getValue(string name) {
+	TableType::iterator it = table_.find(name);
+	if ((it == table_.end())) {
+		if ((pai_ == NULL)) {
+			return NULL;
+		}
+		
+		return pai_->getValue(name);
+	}
+	
+	return it->second;
+}
+
+void SymbolTable::addValue(string name, Value* value) {
+	table_[name] = value;
+}
+
 Context &Context::getContext(){
 		if (instance == NULL){ 
 			instance = new Context(); 
+			instance->escopo = new SymbolTable(NULL);
 		}
 		return *instance;
 }
 
-Context::TypeTable &Context::getTable(){ 
-	return this->table; 
+SymbolTable *Context::getEscopo() {
+	return this->escopo;
 }
 
 void Context::setProgram(Program *prog){ 

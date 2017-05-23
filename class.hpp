@@ -12,11 +12,50 @@ class Node {
 		virtual void accept(class Visitor *) = 0;
 };
 
+class Type : public Node{};
+
 class Program : public Node {};
 
-class ExpList : public Program {};
+class StatementList : public Program{};
 
-class Commands : public ExpList{};
+class VarsAndCode : public StatementList{};
+
+class FuncDefinitionList : public StatementList{};
+
+class VarDeclarationList : public VarsAndCode{};
+
+class VarDeclarations : public VarDeclarationList{};
+
+//Aqui seria o varDeclarations
+
+class FuncDefinition : public FuncDefinitionList{};
+
+class FuncDefinitions : public FuncDefinitionList{
+		private:
+		FuncDefinitionList *flist;
+		FuncDefinition *f;
+	public:
+		FuncDefinitions(FuncDefinitionList *fulist,FuncDefinition *fd): flist(fulist), f(fd){} ;
+		FuncDefinitionList *getFuncDefinitionList();
+		FuncDefinition *getFuncDefinition();
+		void accept(Visitor *v);
+};
+
+class FunctionNonPar : public FuncDefinition{};
+
+class BlockCommands : public VarsAndCode {
+	private:
+		class Commands *cmds_;
+	public:
+	
+		BlockCommands(class Commands *comms) : cmds_(comms){}
+	
+		void setCommands(Commands *cmds);
+		class Commands *getCommands();
+		void accept(Visitor *v);
+};
+
+class Commands : public BlockCommands{};
 
 class Command : public Commands {};
 
@@ -25,7 +64,7 @@ class CommandsCommand : public Commands {
 		Commands *cmds;
 		Command *cmd;
 	public:
-		CommandsCommand(Commands *cmms,Command *cmm): cmds(cmms),cmd(cmm){};
+		CommandsCommand(Commands *cmms,Command *cmm);
 		Commands *getCommands();
 		Command *getCommand();
 		void accept(Visitor *v);
@@ -36,6 +75,8 @@ class Iff : public Command{};
 class Exp : public Command {};
 
 class ExpIgDif : public Exp {};
+
+class ExpLessGreater : public Exp {};
 
 class ExpPlusMinusBin : public Exp {};
 
@@ -59,11 +100,11 @@ class Value : public ExpUn {
 class If: public Iff{
 	private:
 		Exp *exp;
-		ExpList *expList;
+		BlockCommands *blockCommands;
 	public:
-		If(Exp *e, ExpList *eList): exp(e), expList(eList){}
+		If(Exp *e, BlockCommands *bcs): exp(e), blockCommands(bcs){}
 		Exp *getExp();
-		ExpList *getExpList();
+		BlockCommands *getBlockCommands();
 		void accept(Visitor *);
 };
 
@@ -152,6 +193,50 @@ class ExpDif : public ExpIgDif {
 		void accept(Visitor *v);
 };
 
+class LessThen : public ExpLessGreater {
+private:
+	Exp *exp;
+	Factor *factor;
+public:
+	LessThen(Exp *e, Factor *f): exp(e), factor(f){}
+	Exp *getExp();
+	Factor *getFactor();
+	void accept(Visitor *v);
+};
+
+class LessEqualThen : public ExpLessGreater {
+private:
+	Exp *exp;
+	Factor *factor;
+public:
+	LessEqualThen(Exp *e, Factor *f): exp(e) , factor(f){}
+	Exp *getExp();
+	Factor *getFactor();
+	void accept(Visitor *v);
+};
+
+class GreaterThen : public ExpLessGreater {
+private:
+	Exp *exp;
+	Factor *factor;
+public:
+	GreaterThen(Exp *e, Factor *f): exp(e), factor(f){}
+	Exp *getExp();
+	Factor *getFactor();
+	void accept(Visitor *v);
+};
+
+class GreaterEqualThen : public ExpLessGreater {
+private:
+	Exp *exp;
+	Factor *factor;
+public:
+	GreaterEqualThen(Exp *e, Factor *f): exp(e), factor(f){}
+	Exp *getExp();
+	Factor *getFactor();
+	void accept(Visitor *v);
+};
+
 class IntValue: public Value {
 	private:
 		int value;
@@ -194,20 +279,55 @@ class Atribuicao : public Command {
 		void accept(Visitor *);
 }; 
 
+class SymbolTable {
+	private:
+		typedef map<string, Value*> TableType;
+		TableType table_;
+		SymbolTable *pai_;
+	public:
+		SymbolTable(SymbolTable *pai);
+		Value* getValue(string name);
+		void addValue(string name, Value* value);
+};
+
+
+class Vardeclaration : public VarDeclarations{
+
+private:
+	int type_;
+	Identifier *ident_;
+public:
+	VarDeclaration(int t, class Identifier *d) : type_(t), ident_(d){}
+	int getType();
+	Identifier *getIdValue;
+	void accept(Visitor *);	
+};
+
+
+class VarVar : public VarDeclarations{
+	private:
+		VarDeclarations *vds_;
+		VarDeclaration *vd_;
+	public:
+		VarVar(VarDeclarations *vards,VarDeclaration *vard): vds_(vards), vd_(vard){}
+		VarDeclarations *getVarDecls();
+		VarDeclaration *getVarDecl();
+		void accept(Visitor *v);
+	
+};
+
+
 
 class Context {
 	private:
+		SymbolTable *escopo;
 		static Context *instance;
 		Program *program;
 	public:
-		typedef map<string, Value *> TypeTable;
 		static Context &getContext();
-		
-		TypeTable &getTable();
+		class SymbolTable *getEscopo();
 		void setProgram(Program *);
 		Program *getProgram();
-	private:
-		TypeTable table;	
 };
 
 #endif
